@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Supplier } from '@inven-tech/types';
@@ -14,26 +14,25 @@ export class Suppliers implements OnInit {
   private suppliersService = inject(SuppliersService);
   private fb = inject(FormBuilder);
 
-  suppliers: Supplier[] = [];
-  loading = true;
-  error: string | null = null;
-  showModal = false;
-  editingId: number | null = null;
-  confirmDeleteId: number | null = null;
+  suppliers = signal<Supplier[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
+  showModal = signal(false);
+  editingId = signal<number | null>(null);
+  confirmDeleteId = signal<number | null>(null);
 
-  // ngModel — búsqueda/filtro
-  searchQuery = '';
+  searchQuery = signal('');
 
-  get filteredSuppliers(): Supplier[] {
-    const q = this.searchQuery.toLowerCase().trim();
-    if (!q) return this.suppliers;
-    return this.suppliers.filter(
+  filteredSuppliers = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    if (!q) return this.suppliers();
+    return this.suppliers().filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
         (s.email ?? '').toLowerCase().includes(q) ||
         (s.phone ?? '').toLowerCase().includes(q)
     );
-  }
+  });
 
   // FormBuilder + Validators — formulario alta/edición
   form = this.fb.group({
@@ -48,41 +47,41 @@ export class Suppliers implements OnInit {
   }
 
   loadSuppliers(): void {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     this.suppliersService.getAll().subscribe({
       next: (data) => {
-        this.suppliers = data;
-        this.loading = false;
+        this.suppliers.set(data);
+        this.loading.set(false);
       },
       error: () => {
-        this.error = 'Error al cargar los proveedores.';
-        this.loading = false;
+        this.error.set('Error al cargar los proveedores.');
+        this.loading.set(false);
       },
     });
   }
 
   openCreate(): void {
-    this.editingId = null;
+    this.editingId.set(null);
     this.form.reset();
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   openEdit(supplier: Supplier): void {
-    this.editingId = supplier.id;
+    this.editingId.set(supplier.id);
     this.form.setValue({
       name: supplier.name,
       email: supplier.email ?? '',
       phone: supplier.phone ?? '',
       address: supplier.address ?? '',
     });
-    this.showModal = true;
+    this.showModal.set(true);
   }
 
   closeModal(): void {
-    this.showModal = false;
+    this.showModal.set(false);
     this.form.reset();
-    this.editingId = null;
+    this.editingId.set(null);
   }
 
   save(): void {
@@ -98,51 +97,51 @@ export class Suppliers implements OnInit {
       address: this.form.value.address!,
     };
 
-    if (this.editingId === null) {
+    if (this.editingId() === null) {
       this.suppliersService.create(payload).subscribe({
         next: (created) => {
-          this.suppliers = [...this.suppliers, created];
+          this.suppliers.update((list) => [...list, created]);
           this.closeModal();
         },
         error: () => {
-          this.error = 'Error al crear el proveedor.';
+          this.error.set('Error al crear el proveedor.');
         },
       });
     } else {
-      const id = this.editingId;
+      const id = this.editingId()!;
       this.suppliersService.update(id, payload).subscribe({
         next: () => {
-          this.suppliers = this.suppliers.map((s) =>
-            s.id === id ? { ...s, ...payload } : s
+          this.suppliers.update((list) =>
+            list.map((s) => (s.id === id ? { ...s, ...payload } : s))
           );
           this.closeModal();
         },
         error: () => {
-          this.error = 'Error al actualizar el proveedor.';
+          this.error.set('Error al actualizar el proveedor.');
         },
       });
     }
   }
 
   requestDelete(id: number): void {
-    this.confirmDeleteId = id;
+    this.confirmDeleteId.set(id);
   }
 
   cancelDelete(): void {
-    this.confirmDeleteId = null;
+    this.confirmDeleteId.set(null);
   }
 
   confirmDelete(): void {
-    if (this.confirmDeleteId === null) return;
-    const id = this.confirmDeleteId;
+    if (this.confirmDeleteId() === null) return;
+    const id = this.confirmDeleteId()!;
     this.suppliersService.delete(id).subscribe({
       next: () => {
-        this.suppliers = this.suppliers.filter((s) => s.id !== id);
-        this.confirmDeleteId = null;
+        this.suppliers.update((list) => list.filter((s) => s.id !== id));
+        this.confirmDeleteId.set(null);
       },
       error: () => {
-        this.error = 'Error al eliminar el proveedor.';
-        this.confirmDeleteId = null;
+        this.error.set('Error al eliminar el proveedor.');
+        this.confirmDeleteId.set(null);
       },
     });
   }

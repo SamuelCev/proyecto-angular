@@ -1,6 +1,38 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import type { AuthResponse } from '../../../types/auth';
+
+export interface AuthUser {
+  id: number;
+  name: string;
+  role: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {}
+export class Auth {
+  private readonly api = 'http://localhost:3000/api/auth';
+  readonly user = signal<AuthUser | null>(null);
+
+  constructor(private http: HttpClient, private router: Router) {}
+
+  loadUser() {
+    return this.http.get<AuthUser>(`${this.api}/me`, { withCredentials: true }).subscribe({
+      next: (user) => this.user.set(user),
+      error: () => this.user.set(null),
+    });
+  }
+
+  login(email: string, password: string) {
+    return this.http.post<AuthResponse>(`${this.api}/login`, { email, password }, { withCredentials: true });
+  }
+
+  logout() {
+    this.http.post(`${this.api}/logout`, {}, { withCredentials: true }).subscribe(() => {
+      this.user.set(null);
+      this.router.navigate(['/login']);
+    });
+  }
+}

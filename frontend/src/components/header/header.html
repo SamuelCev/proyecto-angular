@@ -1,1 +1,41 @@
-<p>header works!</p>
+<header class="h-16 bg-surface border-b border-slate-200 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-30">
+  <!-- Logo -->
+  <div class="flex items-center gap-3">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="8" fill="#4f46e5"/>
+      <path d="M10 11h16v2H10zM10 17h16v2H10zM10 23h16v2H10z" fill="#fff"/>
+      <path d="M22 9l5 9-5 9" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="text-xl font-bold text-primary-700 tracking-tight">Inventech</span>
+  </div>
+
+  <!-- User area -->
+  <div class="relative">
+    <button
+      (click)="toggleDropdown()"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+    >
+      <span class="text-sm font-medium text-slate-700">{{ user()?.name ?? 'Usuario' }}</span>
+      <!-- User icon -->
+      <svg class="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+    </button>
+
+    @if (dropdownOpen()) {
+      <div class="absolute right-0 mt-1 w-44 bg-surface rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+        <button
+          (click)="logout()"
+          class="w-full text-left px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition flex items-center gap-2 cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3-3h-9m9 0-3-3m3 3-3 3" />
+          </svg>
+          Cerrar sesión
+        </button>
+      </div>
+    }
+  </div>
+</header>

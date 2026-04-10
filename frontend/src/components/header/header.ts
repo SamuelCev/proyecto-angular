@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Auth } from '../../service/auth';
 
 @Component({
   selector: 'app-header',
@@ -6,4 +7,17 @@ import { Component } from '@angular/core';
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header {}
+export class Header {
+  private readonly auth = inject(Auth);
+  readonly user = this.auth.user;
+  readonly dropdownOpen = signal(false);
+
+  toggleDropdown() {
+    this.dropdownOpen.update(v => !v);
+  }
+
+  logout() {
+    this.dropdownOpen.set(false);
+    this.auth.logout();
+  }
+}
