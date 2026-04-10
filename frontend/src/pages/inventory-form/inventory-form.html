@@ -1,0 +1,296 @@
+<!-- Error global -->
+@if (error()) {
+	<div class="mx-6 mt-4 p-4 bg-danger-50 border border-danger-100 rounded-lg text-danger-700 text-sm">
+		{{ error() }}
+	</div>
+}
+
+<!-- Loading -->
+@if (loading()) {
+	<div class="flex items-center justify-center h-64">
+		<p class="text-slate-500 text-lg">Cargando formulario...</p>
+	</div>
+}
+
+@if (!loading()) {
+	<div class="p-6 space-y-6">
+
+		<!-- Header -->
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+			<div>
+				<h1 class="text-2xl font-bold text-slate-800">
+					@if (mode() === 'create') {
+						Nuevo Producto
+					} @else {
+						Editar Producto
+					}
+				</h1>
+				<p class="text-sm text-slate-500 mt-1">
+					Completá los campos según la estructura de la base de datos.
+				</p>
+			</div>
+
+			<a
+				routerLink="/inventory"
+				class="inline-flex items-center justify-center text-sm px-4 py-2 rounded-lg border border-slate-300 hover:bg-surface-alt transition-colors">
+				Volver a Inventario
+			</a>
+		</div>
+
+		<!-- Card -->
+		<div class="bg-surface rounded-xl shadow p-5 sm:p-6">
+
+			<!-- Formulario Alta -->
+			@if (mode() === 'create') {
+				<form [formGroup]="createForm" (ngSubmit)="saveCreate()" class="space-y-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Nombre <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="text"
+								formControlName="name"
+								placeholder="Nombre del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('create', 'name')" />
+							@if (hasError('create', 'name', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El nombre es requerido.</p>
+							}
+							@if (hasError('create', 'name', 'minlength')) {
+								<p class="text-danger-500 text-xs mt-1">Mínimo 2 caracteres.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								SKU <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="text"
+								formControlName="sku"
+								placeholder="SKU del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('create', 'sku')" />
+							@if (hasError('create', 'sku', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El SKU es requerido.</p>
+							}
+							@if (hasError('create', 'sku', 'minlength')) {
+								<p class="text-danger-500 text-xs mt-1">Mínimo 2 caracteres.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Precio <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								formControlName="price"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('create', 'price')" />
+							@if (hasError('create', 'price', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El precio es requerido.</p>
+							}
+							@if (hasError('create', 'price', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El precio no puede ser negativo.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Stock <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="number"
+								min="0"
+								step="1"
+								formControlName="stock"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('create', 'stock')" />
+							@if (hasError('create', 'stock', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El stock es requerido.</p>
+							}
+							@if (hasError('create', 'stock', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El stock no puede ser negativo.</p>
+							}
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Proveedor <span class="text-danger-500">*</span>
+							</label>
+							<select
+								formControlName="supplier_id"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('create', 'supplier_id')">
+								<option [ngValue]="null">Seleccionar proveedor...</option>
+								@for (supplier of suppliers(); track supplier.id) {
+									<option [ngValue]="supplier.id">{{ supplier.name }} (ID: {{ supplier.id }})</option>
+								}
+							</select>
+							@if (hasError('create', 'supplier_id', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El proveedor es requerido.</p>
+							}
+							@if (hasError('create', 'supplier_id', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El proveedor seleccionado no es válido.</p>
+							}
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+							<textarea
+								formControlName="description"
+								rows="3"
+								placeholder="Descripción opcional del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"></textarea>
+						</div>
+					</div>
+
+					<div class="flex justify-end gap-3 pt-2">
+						<a
+							routerLink="/inventory"
+							class="text-sm px-4 py-2 rounded-lg border border-slate-300 hover:bg-surface-alt transition-colors">
+							Cancelar
+						</a>
+						<button
+							type="submit"
+							[disabled]="saving()"
+							class="text-sm px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer">
+							{{ saving() ? 'Guardando...' : 'Crear producto' }}
+						</button>
+					</div>
+				</form>
+			}
+
+			<!-- Formulario Edición -->
+			@if (mode() === 'edit') {
+				<form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="space-y-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Nombre <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="text"
+								formControlName="name"
+								placeholder="Nombre del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('edit', 'name')" />
+							@if (hasError('edit', 'name', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El nombre es requerido.</p>
+							}
+							@if (hasError('edit', 'name', 'minlength')) {
+								<p class="text-danger-500 text-xs mt-1">Mínimo 2 caracteres.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								SKU <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="text"
+								formControlName="sku"
+								placeholder="SKU del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('edit', 'sku')" />
+							@if (hasError('edit', 'sku', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El SKU es requerido.</p>
+							}
+							@if (hasError('edit', 'sku', 'minlength')) {
+								<p class="text-danger-500 text-xs mt-1">Mínimo 2 caracteres.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Precio <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								formControlName="price"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('edit', 'price')" />
+							@if (hasError('edit', 'price', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El precio es requerido.</p>
+							}
+							@if (hasError('edit', 'price', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El precio no puede ser negativo.</p>
+							}
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Stock <span class="text-danger-500">*</span>
+							</label>
+							<input
+								type="number"
+								min="0"
+								step="1"
+								formControlName="stock"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('edit', 'stock')" />
+							@if (hasError('edit', 'stock', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El stock es requerido.</p>
+							}
+							@if (hasError('edit', 'stock', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El stock no puede ser negativo.</p>
+							}
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-slate-700 mb-1">
+								Proveedor <span class="text-danger-500">*</span>
+							</label>
+							<select
+								formControlName="supplier_id"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+								[class.border-red-400]="controlInvalid('edit', 'supplier_id')">
+								<option [ngValue]="null">Seleccionar proveedor...</option>
+								@for (supplier of suppliers(); track supplier.id) {
+									<option [ngValue]="supplier.id">{{ supplier.name }} (ID: {{ supplier.id }})</option>
+								}
+							</select>
+							@if (hasError('edit', 'supplier_id', 'required')) {
+								<p class="text-danger-500 text-xs mt-1">El proveedor es requerido.</p>
+							}
+							@if (hasError('edit', 'supplier_id', 'min')) {
+								<p class="text-danger-500 text-xs mt-1">El proveedor seleccionado no es válido.</p>
+							}
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+							<textarea
+								formControlName="description"
+								rows="3"
+								placeholder="Descripción opcional del producto"
+								class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"></textarea>
+						</div>
+					</div>
+
+					<div class="flex justify-end gap-3 pt-2">
+						<a
+							routerLink="/inventory"
+							class="text-sm px-4 py-2 rounded-lg border border-slate-300 hover:bg-surface-alt transition-colors">
+							Cancelar
+						</a>
+						<button
+							type="submit"
+							[disabled]="saving()"
+							class="text-sm px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer">
+							{{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+						</button>
+					</div>
+				</form>
+			}
+		</div>
+	</div>
+}
