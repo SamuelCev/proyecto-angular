@@ -1,1 +1,102 @@
-<p>dashboard works!</p>
+<!-- Loading -->
+@if (loading) {
+  <div class="flex items-center justify-center h-64">
+    <p class="text-gray-500 text-lg">Cargando...</p>
+  </div>
+}
+
+<!-- Error -->
+@if (error) {
+  <div class="m-6 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700">
+    {{ error }}
+  </div>
+}
+
+<!-- Content -->
+@if (!loading && !error) {
+  <div class="p-6 space-y-6">
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <div class="bg-white rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-gray-500">Total de Productos</span>
+        <span class="text-3xl font-bold text-gray-800">{{ totalProducts }}</span>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-gray-500">Valor del Stock</span>
+        <span class="text-3xl font-bold text-green-600">{{ totalStockValue | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-gray-500">Productos con Stock Bajo</span>
+        <span class="text-3xl font-bold text-yellow-500">{{ lowStockProducts.length }}</span>
+        <span class="text-xs text-gray-400">5 unidades o menos</span>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-gray-500">Proveedores</span>
+        <span class="text-3xl font-bold text-gray-800">{{ totalSuppliers }}</span>
+      </div>
+
+    </div>
+
+    <!-- Alerts: Out of Stock -->
+    @if (outOfStockProducts.length > 0) {
+      <div class="bg-red-50 border border-red-200 rounded-xl p-5">
+        <h2 class="text-base font-semibold text-red-700 mb-3">
+          ⚠ Sin stock ({{ outOfStockProducts.length }})
+        </h2>
+        <ul class="space-y-1">
+          @for (product of outOfStockProducts; track product.id) {
+            <li class="text-sm text-red-600 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
+              {{ product.name }}
+              <span class="text-gray-400 text-xs">(SKU: {{ product.sku }})</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Recent Movements -->
+    <div class="bg-white rounded-xl shadow p-5">
+      <h2 class="text-base font-semibold text-gray-700 mb-4">Últimos Movimientos</h2>
+
+      @if (recentMovements.length === 0) {
+        <p class="text-sm text-gray-400">No hay movimientos registrados.</p>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead>
+              <tr class="text-xs text-gray-500 uppercase border-b">
+                <th class="pb-2 pr-4">Producto</th>
+                <th class="pb-2 pr-4">Tipo</th>
+                <th class="pb-2 pr-4">Cantidad</th>
+                <th class="pb-2">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mov of recentMovements; track mov.id) {
+                <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors">
+                  <td class="py-3 pr-4 font-medium text-gray-800">{{ mov.productName }}</td>
+                  <td class="py-3 pr-4">
+                    @if (mov.movement_type === 'IN') {
+                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Entrada</span>
+                    } @else {
+                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Salida</span>
+                    }
+                  </td>
+                  <td class="py-3 pr-4 text-gray-700">{{ mov.quantity }}</td>
+                  <td class="py-3 text-gray-500">{{ mov.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+  </div>
+}

@@ -1,1 +1,204 @@
-<p>suppliers works!</p>
+<!-- Error global -->
+@if (error) {
+  <div class="mx-6 mt-4 p-4 bg-red-100 border border-red-300 rounded-lg text-red-700 text-sm">
+    {{ error }}
+  </div>
+}
+
+<div class="p-6 space-y-4">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <h1 class="text-2xl font-bold text-gray-800">Proveedores</h1>
+    <button
+      (click)="openCreate()"
+      class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      + Nuevo Proveedor
+    </button>
+  </div>
+
+  <!-- Búsqueda con ngModel -->
+  <div>
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      placeholder="Buscar por nombre, email o teléfono..."
+      class="w-full sm:w-80 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="flex items-center justify-center h-48">
+      <p class="text-gray-400">Cargando...</p>
+    </div>
+  }
+
+  <!-- Tabla -->
+  @if (!loading) {
+    <div class="bg-white rounded-xl shadow overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 border-b">
+          <tr class="text-xs text-gray-500 uppercase">
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Teléfono</th>
+            <th class="px-4 py-3">Dirección</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredSuppliers.length === 0) {
+            <tr>
+              <td colspan="5" class="px-4 py-8 text-center text-gray-400">
+                No se encontraron proveedores.
+              </td>
+            </tr>
+          }
+          @for (supplier of filteredSuppliers; track supplier.id) {
+            <tr class="border-b last:border-0 hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 font-medium text-gray-800">{{ supplier.name }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ supplier.email || '—' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ supplier.phone || '—' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ supplier.address || '—' }}</td>
+              <td class="px-4 py-3">
+                @if (confirmDeleteId === supplier.id) {
+                  <!-- Confirmación inline -->
+                  <span class="text-sm text-gray-600 mr-2">¿Eliminar?</span>
+                  <button
+                    (click)="confirmDelete()"
+                    class="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded mr-1 transition-colors">
+                    Sí
+                  </button>
+                  <button
+                    (click)="cancelDelete()"
+                    class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded transition-colors">
+                    No
+                  </button>
+                } @else {
+                  <div class="flex items-center gap-2">
+                    <button
+                      (click)="openEdit(supplier)"
+                      class="text-xs text-blue-600 hover:underline font-medium">
+                      Editar
+                    </button>
+                    <button
+                      (click)="requestDelete(supplier.id)"
+                      class="text-xs text-red-500 hover:underline font-medium">
+                      Eliminar
+                    </button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Modal -->
+@if (showModal) {
+  <div
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+    (click)="closeModal()">
+    <div
+      class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 space-y-4"
+      (click)="$event.stopPropagation()">
+
+      <h2 class="text-lg font-semibold text-gray-800">
+        {{ editingId === null ? 'Nuevo Proveedor' : 'Editar Proveedor' }}
+      </h2>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="space-y-4">
+
+        <!-- Nombre -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Nombre <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="name"
+            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [class.border-red-400]="form.controls.name.invalid && form.controls.name.touched"
+            placeholder="Nombre del proveedor" />
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            @if (form.controls.name.hasError('required')) {
+              <p class="text-red-500 text-xs mt-1">El nombre es requerido.</p>
+            } @else if (form.controls.name.hasError('minlength')) {
+              <p class="text-red-500 text-xs mt-1">Mínimo 2 caracteres.</p>
+            }
+          }
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [class.border-red-400]="form.controls.email.invalid && form.controls.email.touched"
+            placeholder="correo@ejemplo.com" />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <p class="text-red-500 text-xs mt-1">Ingresá un email válido.</p>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Teléfono <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="phone"
+            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [class.border-red-400]="form.controls.phone.invalid && form.controls.phone.touched"
+            placeholder="+54 9 11 1234-5678" />
+          @if (form.controls.phone.invalid && form.controls.phone.touched) {
+            @if (form.controls.phone.hasError('required')) {
+              <p class="text-red-500 text-xs mt-1">El teléfono es requerido.</p>
+            } @else if (form.controls.phone.hasError('minlength')) {
+              <p class="text-red-500 text-xs mt-1">Mínimo 10 caracteres.</p>
+            }
+          }
+        </div>
+
+        <!-- Dirección -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Dirección <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            formControlName="address"
+            rows="2"
+            class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+            [class.border-red-400]="form.controls.address.invalid && form.controls.address.touched"
+            placeholder="Calle, ciudad, país"></textarea>
+          @if (form.controls.address.invalid && form.controls.address.touched) {
+            <p class="text-red-500 text-xs mt-1">La dirección es requerida.</p>
+          }
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="text-sm px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="text-sm px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+            Guardar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

@@ -56,6 +56,6 @@ CREATE TABLE `movements` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
--- Insert an initial super admin user for testing
+-- Insert an initial super admin user (password: Admin1234)
 INSERT INTO `users` (`name`, `email`, `password_hash`, `role`) 
-VALUES ('Super Admin', 'admin@inventech.com', 'dummy_hash', 'ADMIN');
+VALUES ('Super Admin', 'admin@inventech.com', '$2b$10$ytJyfcOqvizVhXEExIuxiuZvIBOtqye.XoXPQmgErscvkowojvHye', 'ADMIN');

@@ -12,7 +12,10 @@ const { verifyToken } = require('./middlewares/authMiddleware');
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
