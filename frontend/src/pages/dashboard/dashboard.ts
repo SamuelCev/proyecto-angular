@@ -63,9 +63,14 @@ export class Dashboard implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set('Error al cargar los datos del dashboard.');
+        this.totalProducts.set(0);
+        this.totalStockValue.set(0);
+        this.totalSuppliers.set(0);
+        this.lowStockProducts.set([]);
+        this.outOfStockProducts.set([]);
+        this.recentMovements.set([]);
         this.loading.set(false);
-        console.error(err);
+        console.error('Load data failed (suppressed error):', err);
       },
     });
   }

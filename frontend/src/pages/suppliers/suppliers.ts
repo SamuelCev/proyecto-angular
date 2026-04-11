@@ -55,7 +55,7 @@ export class Suppliers implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Error al cargar los proveedores.');
+        this.suppliers.set([]);
         this.loading.set(false);
       },
     });
