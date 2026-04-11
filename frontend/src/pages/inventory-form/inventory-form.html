@@ -5,6 +5,13 @@
 	</div>
 }
 
+<!-- Mensaje de exito -->
+@if (success()) {
+	<div class="mx-6 mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg text-emerald-700 text-sm">
+		{{ success() }}
+	</div>
+}
+
 <!-- Loading -->
 @if (loading()) {
 	<div class="flex items-center justify-center h-64">
@@ -38,6 +45,7 @@
 		</div>
 
 		<!-- Card -->
+		@defer (on immediate) {
 		<div class="bg-surface rounded-xl shadow p-5 sm:p-6">
 
 			<!-- Formulario Alta -->
@@ -292,5 +300,10 @@
 				</form>
 			}
 		</div>
+		} @placeholder {
+			<div class="bg-surface rounded-xl shadow p-5 sm:p-6">
+				<p class="text-slate-500 text-sm">Preparando formulario...</p>
+			</div>
+		}
 	</div>
 }

@@ -22,6 +22,7 @@ export class InventoryForm implements OnInit {
   loading = signal(true);
   saving = signal(false);
   error = signal<string | null>(null);
+  success = signal<string | null>(null);
   mode = signal<'create' | 'edit'>('create');
   editId = signal<number | null>(null);
   suppliers = signal<Supplier[]>([]);
@@ -75,6 +76,7 @@ export class InventoryForm implements OnInit {
     const payload = this.toPayload(this.createForm.getRawValue());
     this.saving.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     this.inventoryService.create(payload).subscribe({
       next: () => {
@@ -97,11 +99,15 @@ export class InventoryForm implements OnInit {
     const payload = this.toPayload(this.editForm.getRawValue());
     this.saving.set(true);
     this.error.set(null);
+    this.success.set(null);
 
     this.inventoryService.update(this.editId()!, payload).subscribe({
       next: () => {
         this.saving.set(false);
-        this.router.navigate(['/inventory']);
+        this.success.set('Cambios guardados correctamente. Redirigiendo...');
+        setTimeout(() => {
+          this.router.navigate(['/inventory']);
+        }, 1200);
       },
       error: () => {
         this.error.set('No se pudo actualizar el producto.');
