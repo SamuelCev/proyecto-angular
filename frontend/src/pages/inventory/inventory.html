@@ -1,52 +1,94 @@
-<div class="p-6 space-y-6">
-	<div>
-		<h1 class="text-2xl font-bold text-slate-800">Inventario</h1>
-		<p class="text-sm text-slate-500 mt-1">
-			Selecciona la accion que quieres realizar sobre productos.
-		</p>
-	</div>
+<!-- Error global -->
+@if (error()) {
+  <div class="mx-6 mt-4 p-4 bg-danger-50 border border-danger-100 rounded-lg text-danger-700 text-sm">
+    {{ error() }}
+  </div>
+}
 
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-		<div class="bg-surface rounded-xl shadow p-5 space-y-4">
-			<h2 class="text-lg font-semibold text-slate-700">Nuevo Producto</h2>
-			<p class="text-sm text-slate-500">
-				Crea un producto con los campos del inventario.
-			</p>
+<div class="p-6 space-y-4">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <h1 class="text-2xl font-bold text-slate-800">Inventario</h1>
+    <a
+      routerLink="/inventory/new"
+      class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors inline-block text-center cursor-pointer">
+      + Nuevo Producto
+    </a>
+  </div>
 
-			<a
-				routerLink="/inventory/new"
-				class="inline-flex items-center justify-center text-sm font-medium px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors">
-				Ir a formulario de alta
-			</a>
-		</div>
+  <!-- Búsqueda -->
+  <div>
+    <input
+      type="text"
+      [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+      placeholder="Buscar por nombre o SKU..."
+      class="w-full sm:w-80 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
+  </div>
 
-		<div class="bg-surface rounded-xl shadow p-5 space-y-4">
-			<h2 class="text-lg font-semibold text-slate-700">Editar Producto</h2>
-			<p class="text-sm text-slate-500">
-				Ingresa el ID del producto para abrir su formulario de edicion.
-			</p>
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <p class="text-slate-400">Cargando...</p>
+    </div>
+  }
 
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-slate-700">ID de producto</label>
-				<input
-					type="number"
-					min="1"
-					[value]="editProductId()"
-					(input)="setEditProductId(($any($event.target)).value)"
-					placeholder="Ej: 1"
-					class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
-			</div>
-
-			@if (editError()) {
-				<p class="text-danger-500 text-xs">{{ editError() }}</p>
-			}
-
-			<button
-				type="button"
-				(click)="goToEditForm()"
-				class="inline-flex items-center justify-center text-sm font-medium px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors cursor-pointer">
-				Ir a formulario de edicion
-			</button>
-		</div>
-	</div>
+  <!-- Tabla -->
+  @if (!loading()) {
+    <div class="bg-surface rounded-xl shadow overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-slate-50 border-b">
+          <tr class="text-xs text-slate-500 uppercase font-semibold">
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">SKU</th>
+            <th class="px-4 py-3">Precio</th>
+            <th class="px-4 py-3">Stock</th>
+            <th class="px-4 py-3">Proveedor</th>
+            <th class="px-4 py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredProducts().length === 0) {
+            <tr>
+              <td colspan="7" class="px-4 py-12 text-center text-slate-400 bg-white">
+                <p class="text-base font-medium text-slate-600">No hay productos registrados.</p>
+                <p class="text-sm mt-1">Crea un producto para comenzar a gestionar tu inventario.</p>
+              </td>
+            </tr>
+          }
+          @for (product of filteredProducts(); track product.id) {
+            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors bg-white">
+              <td class="px-4 py-3 text-slate-500 font-medium">{{ product.id }}</td>
+              <td class="px-4 py-3 font-semibold text-slate-800">{{ product.name }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ product.sku }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ product.price | currency:'USD' }}</td>
+              <td class="px-4 py-3">
+                @if (product.stock === 0) {
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-danger-100 text-danger-700">Sin stock</span>
+                } @else if (product.stock <= 5) {
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-warning-100 text-warning-700">{{ product.stock }} (Bajo)</span>
+                } @else {
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-success-100 text-success-700">{{ product.stock }} disp.</span>
+                }
+              </td>
+              <td class="px-4 py-3 text-slate-600">{{ product.supplierName }}</td>
+              <td class="px-4 py-3">
+                @if (confirmDeleteId() === product.id) {
+                  <!-- Confirmación inline -->
+                  <span class="text-sm text-slate-600 mr-2">¿Eliminar?</span>
+                  <button (click)="confirmDelete()" class="text-xs bg-danger-600 hover:bg-danger-700 text-white px-2 py-1 rounded mr-1 transition-colors cursor-pointer">Sí</button>
+                  <button (click)="cancelDelete()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded transition-colors cursor-pointer">No</button>
+                } @else {
+                  <div class="flex items-center gap-2">
+                    <a [routerLink]="['/inventory', product.id, 'edit']" class="text-xs text-primary-600 hover:underline font-medium cursor-pointer">Editar</a>
+                    <button (click)="requestDelete(product.id)" class="text-xs text-danger-500 hover:underline font-medium cursor-pointer">Eliminar</button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>

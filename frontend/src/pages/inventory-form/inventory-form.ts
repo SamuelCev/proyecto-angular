@@ -49,7 +49,7 @@ export class InventoryForm implements OnInit {
     this.suppliersService.getAll().subscribe({
       next: (data) => this.suppliers.set(data),
       error: () => {
-        this.error.set('Error al cargar los proveedores.');
+        this.suppliers.set([]);
       },
     });
 

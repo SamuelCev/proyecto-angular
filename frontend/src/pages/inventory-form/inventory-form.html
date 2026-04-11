@@ -140,6 +140,13 @@
 									<option [ngValue]="supplier.id">{{ supplier.name }} (ID: {{ supplier.id }})</option>
 								}
 							</select>
+							@if (suppliers().length === 0) {
+								<div class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+									<p class="text-xs text-amber-800 font-medium leading-relaxed">
+										Aún no hay proveedores registrados. <a routerLink="/suppliers" class="underline font-semibold hover:text-amber-900 transition-colors">Registra uno aquí</a> para poder crear el producto.
+									</p>
+								</div>
+							}
 							@if (hasError('create', 'supplier_id', 'required')) {
 								<p class="text-danger-500 text-xs mt-1">El proveedor es requerido.</p>
 							}
@@ -266,6 +273,14 @@
 									<option [ngValue]="supplier.id">{{ supplier.name }} (ID: {{ supplier.id }})</option>
 								}
 							</select>
+							@if (suppliers().length === 0) {
+								<div class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+									<span class="text-amber-500 text-sm">⚠️</span>
+									<p class="text-xs text-amber-800 font-medium leading-relaxed">
+										Aún no hay proveedores registrados. <a routerLink="/suppliers" class="underline font-semibold hover:text-amber-900 transition-colors">Registra uno aquí</a> para poder actualizar el producto.
+									</p>
+								</div>
+							}
 							@if (hasError('edit', 'supplier_id', 'required')) {
 								<p class="text-danger-500 text-xs mt-1">El proveedor es requerido.</p>
 							}

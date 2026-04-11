@@ -21,7 +21,7 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const id = await ProductModel.create(req.body);
+    const id = await ProductModel.create(req.body, req.user.id);
     res.status(201).json({ id, ...req.body });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const affected = await ProductModel.update(req.params.id, req.body);
+    const affected = await ProductModel.update(req.params.id, req.body, req.user.id);
     if (!affected) return res.status(404).json({ message: 'Not found' });
     res.json({ message: 'Updated successfully' });
   } catch (error) {
@@ -40,7 +40,7 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const affected = await ProductModel.delete(req.params.id);
+    const affected = await ProductModel.delete(req.params.id, req.user.id);
     if (!affected) return res.status(404).json({ message: 'Not found' });
     res.json({ message: 'Deleted successfully' });
   } catch (error) {

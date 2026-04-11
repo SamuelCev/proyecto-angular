@@ -27,4 +27,8 @@ export class InventoryService {
   update(id: number, data: ProductPayload): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${API_URL}/products/${id}`, data, { withCredentials: true });
   }
+
+  delete(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${API_URL}/products/${id}`, { withCredentials: true });
+  }
 }

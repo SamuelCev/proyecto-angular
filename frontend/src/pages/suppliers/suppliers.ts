@@ -34,16 +34,33 @@ export class Suppliers implements OnInit {
     );
   });
 
-  // FormBuilder + Validators — formulario alta/edición
+  // FormBuilder + Validators — formulario alta/edición con límites estrictos
   form = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
-    email: ['', [Validators.email]],
-    phone: ['', [Validators.required, Validators.minLength(10)]],
-    address: ['', [Validators.required]],
+    name: ['', [
+      Validators.required,
+      Validators.minLength(2),
+      Validators.maxLength(100),
+      Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,&'-]+$/)
+    ]],
+    email: ['', [Validators.email, Validators.maxLength(150)]],
+    phone: ['', [
+      Validators.required,
+      Validators.pattern(/^[0-9\+\-\s\(\)]{10,20}$/)
+    ]],
+    address: ['', [Validators.required, Validators.maxLength(250)]],
   });
 
   ngOnInit(): void {
     this.loadSuppliers();
+  }
+
+  restrictPhone(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/[^0-9\+\-\s\(\)]/g, '');
+    if (input.value !== sanitized) {
+      input.value = sanitized;
+      this.form.controls.phone.setValue(sanitized, { emitEvent: false });
+    }
   }
 
   loadSuppliers(): void {
