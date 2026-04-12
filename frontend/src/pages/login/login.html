@@ -1,1 +1,134 @@
-<p>login works!</p>
+<div class="min-h-screen flex items-center justify-center bg-[#f1f5f9]">
+  <div class="bg-white rounded-2xl shadow-lg p-10 w-full max-w-md">
+    <!-- Logo / Header -->
+    <div class="flex flex-col items-center mb-8">
+      <div class="bg-[#eef2ff] p-3 rounded-xl mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-8 h-8 text-[#4f46e5]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-[#4338ca]">Inventech</h1>
+      <p class="text-slate-500 text-sm mt-1">Inicia sesión en tu cuenta</p>
+    </div>
+
+    <!-- Alerta: credenciales incorrectas -->
+    @if (loginError) {
+      <div
+        class="mb-5 flex items-center gap-2 bg-[#fff1f2] border border-[#f43f5e] text-[#e11d48] text-sm rounded-lg px-4 py-3"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+          />
+        </svg>
+        Favor de revisar tu correo o contraseña.
+      </div>
+    }
+
+    <!-- Alerta: bienvenido -->
+    @if (loginSuccess) {
+      <div
+        class="mb-5 flex items-center gap-2 bg-[#ecfdf5] border border-[#10b981] text-[#047857] text-sm rounded-lg px-4 py-3"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        ¡Bienvenido, {{ credentials.email }}!
+      </div>
+    }
+
+    <!-- Formulario Template-driven -->
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Email -->
+      <div class="mb-5">
+        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
+          Correo electrónico
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="credentials.email"
+          #email="ngModel"
+          required
+          email
+          autocomplete="email"
+          placeholder="correo@ejemplo.com"
+          class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
+          [class.border-red-400]="email.invalid && (email.dirty || submitted)"
+        />
+        @if (email.invalid && (email.dirty || submitted)) {
+          <p class="text-[#e11d48] text-xs mt-1">
+            @if (email.errors?.['required']) {
+              <span>El correo es obligatorio.</span>
+            }
+            @if (email.errors?.['email']) {
+              <span>Ingresa un correo válido (ejemplo: usuario&#64;dominio.com).</span>
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Contraseña -->
+      <div class="mb-6">
+        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+          Contraseña
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="credentials.password"
+          #password="ngModel"
+          required
+          minlength="6"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
+          [class.border-red-400]="password.invalid && (password.dirty || submitted)"
+        />
+        @if (password.invalid && (password.dirty || submitted)) {
+          <p class="text-[#e11d48] text-xs mt-1">
+            @if (password.errors?.['required']) {
+              <span>La contraseña es obligatoria.</span>
+            }
+            @if (password.errors?.['minlength']) {
+              <span>Mínimo 6 caracteres.</span>
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Botón -->
+      <button
+        type="submit"
+        class="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 text-sm cursor-pointer"
+      >
+        Iniciar sesión
+      </button>
+    </form>
+  </div>
+</div>
