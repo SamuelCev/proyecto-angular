@@ -15,38 +15,7 @@
         </svg>
       </div>
       <h1 class="text-2xl font-bold text-[#4338ca]">Inventech</h1>
-      <p class="text-slate-500 text-sm mt-1">
-        @if (mode() === 'login') {
-          Inicia sesión en tu cuenta
-        } @else {
-          Crea tu cuenta de usuario
-        }
-      </p>
-    </div>
-
-    <div class="mb-6 grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-lg">
-      <button
-        type="button"
-        class="px-3 py-2 text-sm rounded-md transition-colors duration-200 cursor-pointer"
-        [class.bg-white]="mode() === 'login'"
-        [class.text-[#4338ca]]="mode() === 'login'"
-        [class.font-semibold]="mode() === 'login'"
-        [class.text-slate-600]="mode() !== 'login'"
-        (click)="switchMode('login')"
-      >
-        Iniciar sesión
-      </button>
-      <button
-        type="button"
-        class="px-3 py-2 text-sm rounded-md transition-colors duration-200 cursor-pointer"
-        [class.bg-white]="mode() === 'register'"
-        [class.text-[#4338ca]]="mode() === 'register'"
-        [class.font-semibold]="mode() === 'register'"
-        [class.text-slate-600]="mode() !== 'register'"
-        (click)="switchMode('register')"
-      >
-        Registrarse
-      </button>
+      <p class="text-slate-500 text-sm mt-1">Inicia sesión en tu cuenta</p>
     </div>
 
     <!-- Alerta: credenciales incorrectas -->
@@ -68,7 +37,7 @@
             d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
           />
         </svg>
-        {{ feedbackMessage() || 'Ocurrió un error en la autenticación.' }}
+        Favor de revisar tu correo o contraseña.
       </div>
     }
 
@@ -87,190 +56,79 @@
         >
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
-        {{ feedbackMessage() }}
+        ¡Bienvenido, {{ credentials.email }}!
       </div>
     }
 
-    @if (mode() === 'login') {
-      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
-        <div class="mb-5">
-          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
-            Correo electrónico
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="loginData.email"
-            #email="ngModel"
-            required
-            email
-            autocomplete="email"
-            placeholder="correo@ejemplo.com"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-            [class.border-red-400]="email.invalid && (email.dirty || submitted())"
-          />
-          @if (email.invalid && (email.dirty || submitted())) {
-            <p class="text-[#e11d48] text-xs mt-1">
-              @if (email.errors?.['required']) {
-                <span>El correo es obligatorio.</span>
-              }
-              @if (email.errors?.['email']) {
-                <span>Ingresa un correo válido (ejemplo: usuario&#64;dominio.com).</span>
-              }
-            </p>
-          }
-        </div>
+    <!-- Formulario Template-driven -->
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Email -->
+      <div class="mb-5">
+        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
+          Correo electrónico
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="credentials.email"
+          #email="ngModel"
+          required
+          email
+          autocomplete="email"
+          placeholder="correo@ejemplo.com"
+          class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
+          [class.border-red-400]="email.invalid && (email.dirty || submitted())"
+        />
+        @if (email.invalid && (email.dirty || submitted())) {
+          <p class="text-[#e11d48] text-xs mt-1">
+            @if (email.errors?.['required']) {
+              <span>El correo es obligatorio.</span>
+            }
+            @if (email.errors?.['email']) {
+              <span>Ingresa un correo válido (ejemplo: usuario&#64;dominio.com).</span>
+            }
+          </p>
+        }
+      </div>
 
-        <div class="mb-6">
-          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            [(ngModel)]="loginData.password"
-            #password="ngModel"
-            required
-            minlength="6"
-            autocomplete="current-password"
-            placeholder="••••••••"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-            [class.border-red-400]="password.invalid && (password.dirty || submitted())"
-          />
-          @if (password.invalid && (password.dirty || submitted())) {
-            <p class="text-[#e11d48] text-xs mt-1">
-              @if (password.errors?.['required']) {
-                <span>La contraseña es obligatoria.</span>
-              }
-              @if (password.errors?.['minlength']) {
-                <span>Mínimo 6 caracteres.</span>
-              }
-            </p>
-          }
-        </div>
+      <!-- Contraseña -->
+      <div class="mb-6">
+        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+          Contraseña
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="credentials.password"
+          #password="ngModel"
+          required
+          minlength="6"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
+          [class.border-red-400]="password.invalid && (password.dirty || submitted())"
+        />
+        @if (password.invalid && (password.dirty || submitted())) {
+          <p class="text-[#e11d48] text-xs mt-1">
+            @if (password.errors?.['required']) {
+              <span>La contraseña es obligatoria.</span>
+            }
+            @if (password.errors?.['minlength']) {
+              <span>Mínimo 6 caracteres.</span>
+            }
+          </p>
+        }
+      </div>
 
-        <button
-          type="submit"
-          class="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 text-sm cursor-pointer"
-        >
-          Iniciar sesión
-        </button>
-      </form>
-    } @else {
-      <form #registerForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
-        <div class="mb-4">
-          <label for="name" class="block text-sm font-medium text-slate-700 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            [(ngModel)]="registerData.name"
-            #name="ngModel"
-            required
-            minlength="2"
-            maxlength="100"
-            autocomplete="name"
-            placeholder="Nombre completo"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-            [class.border-red-400]="name.invalid && (name.dirty || submitted())"
-          />
-          @if (name.invalid && (name.dirty || submitted())) {
-            <p class="text-[#e11d48] text-xs mt-1">
-              @if (name.errors?.['required']) {
-                <span>El nombre es obligatorio.</span>
-              }
-              @if (name.errors?.['minlength']) {
-                <span>Mínimo 2 caracteres.</span>
-              }
-            </p>
-          }
-        </div>
-
-        <div class="mb-4">
-          <label for="register-email" class="block text-sm font-medium text-slate-700 mb-1">
-            Correo electrónico
-          </label>
-          <input
-            type="email"
-            id="register-email"
-            name="registerEmail"
-            [(ngModel)]="registerData.email"
-            #registerEmail="ngModel"
-            required
-            email
-            maxlength="150"
-            autocomplete="email"
-            placeholder="correo@ejemplo.com"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-            [class.border-red-400]="registerEmail.invalid && (registerEmail.dirty || submitted())"
-          />
-          @if (registerEmail.invalid && (registerEmail.dirty || submitted())) {
-            <p class="text-[#e11d48] text-xs mt-1">
-              @if (registerEmail.errors?.['required']) {
-                <span>El correo es obligatorio.</span>
-              }
-              @if (registerEmail.errors?.['email']) {
-                <span>Ingresa un correo válido.</span>
-              }
-            </p>
-          }
-        </div>
-
-        <div class="mb-4">
-          <label for="register-password" class="block text-sm font-medium text-slate-700 mb-1">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            id="register-password"
-            name="registerPassword"
-            [(ngModel)]="registerData.password"
-            #registerPassword="ngModel"
-            required
-            minlength="6"
-            autocomplete="new-password"
-            placeholder="••••••••"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-            [class.border-red-400]="registerPassword.invalid && (registerPassword.dirty || submitted())"
-          />
-          @if (registerPassword.invalid && (registerPassword.dirty || submitted())) {
-            <p class="text-[#e11d48] text-xs mt-1">
-              @if (registerPassword.errors?.['required']) {
-                <span>La contraseña es obligatoria.</span>
-              }
-              @if (registerPassword.errors?.['minlength']) {
-                <span>Mínimo 6 caracteres.</span>
-              }
-            </p>
-          }
-        </div>
-
-        <div class="mb-6">
-          <label for="role" class="block text-sm font-medium text-slate-700 mb-1">
-            Rol
-          </label>
-          <select
-            id="role"
-            name="role"
-            [(ngModel)]="registerData.role"
-            class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 bg-white"
-          >
-            <option value="EMPLOYEE">Empleado</option>
-            <option value="ADMIN">Administrador</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          class="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 text-sm cursor-pointer"
-        >
-          Registrar usuario
-        </button>
-      </form>
-    }
+      <!-- Botón -->
+      <button
+        type="submit"
+        class="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-semibold py-2.5 rounded-lg transition-colors duration-200 text-sm cursor-pointer"
+      >
+        Iniciar sesión
+      </button>
+    </form>
   </div>
 </div>
