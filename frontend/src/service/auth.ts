@@ -11,6 +11,13 @@ export interface AuthUser {
   role: string;
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  role: 'ADMIN' | 'EMPLOYEE';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -43,6 +50,10 @@ export class Auth {
 
   login(email: string, password: string) {
     return this.http.post<AuthResponse>(`${this.api}/login`, { email, password }, { withCredentials: true });
+  }
+
+  register(payload: RegisterRequest) {
+    return this.http.post<AuthResponse>(`${this.api}/register`, payload, { withCredentials: true });
   }
 
   logout() {

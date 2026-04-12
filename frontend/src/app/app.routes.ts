@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'inventory/new', canActivate: [authGuard], loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
   { path: 'inventory/:id/edit', canActivate: [authGuard], loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
   { path: 'suppliers', canActivate: [authGuard], loadComponent: () => import('../pages/suppliers/suppliers').then(m => m.Suppliers) },
+  { path: 'users', canActivate: [authGuard], loadComponent: () => import('../pages/users/users').then(m => m.Users) },
   { path: 'movements', canActivate: [authGuard], loadComponent: () => import('../pages/movements/movements').then(m => m.Movements) },
   { path: '**', loadComponent: () => import('../pages/not-found/not-found').then(m => m.NotFound) },
 ];

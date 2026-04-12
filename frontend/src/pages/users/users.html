@@ -1,0 +1,73 @@
+@if (error()) {
+  <div class="mx-6 mt-4 p-4 bg-danger-50 border border-danger-100 rounded-lg text-danger-700 text-sm">
+    {{ error() }}
+  </div>
+}
+
+<div class="p-6 space-y-4">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Usuarios registrados</h1>
+      <p class="text-sm text-slate-500 mt-1">Lista de cuentas disponibles en el sistema.</p>
+    </div>
+  </div>
+
+  <div>
+    <input
+      type="text"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+      placeholder="Buscar por nombre, correo o rol..."
+      class="w-full sm:w-96 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <p class="text-slate-400">Cargando usuarios...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="bg-surface rounded-xl shadow overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-surface-alt border-b">
+          <tr class="text-xs text-slate-500 uppercase">
+            <th class="px-4 py-3">Nombre</th>
+            <th class="px-4 py-3">Correo</th>
+            <th class="px-4 py-3">Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredUsers().length === 0) {
+            <tr>
+              <td colspan="3" class="px-4 py-8 text-center text-slate-400">
+                No hay usuarios para mostrar.
+              </td>
+            </tr>
+          }
+
+          @for (user of filteredUsers(); track user.id) {
+            <tr class="border-b last:border-0 hover:bg-surface-alt transition-colors">
+              <td class="px-4 py-3 font-medium text-slate-800">{{ user.name }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
+              <td class="px-4 py-3">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border"
+                  [class.bg-green-100]="user.role === 'ADMIN'"
+                  [class.text-green-800]="user.role === 'ADMIN'"
+                  [class.border-green-200]="user.role === 'ADMIN'"
+                  [class.bg-slate-100]="user.role !== 'ADMIN'"
+                  [class.text-slate-700]="user.role !== 'ADMIN'"
+                  [class.border-slate-200]="user.role !== 'ADMIN'"
+                >
+                  {{ user.role === 'ADMIN' ? 'Administrador' : 'Empleado' }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

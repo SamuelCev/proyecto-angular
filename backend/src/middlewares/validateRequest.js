@@ -3,13 +3,15 @@ const validateRequest = (schema) => async (req, res, next) => {
     req.body = await schema.parseAsync(req.body);
     next();
   } catch (error) {
-    const errorMessages = error.errors.map(err => ({
+    const issues = error?.issues || error?.errors || [];
+    const errorMessages = issues.map(err => ({
       field: err.path.join('.'),
       message: err.message
     }));
+
     return res.status(400).json({
-      message: 'Error de validación de datos',
-      errors: errorMessages
+      message: 'Error de validacion de datos',
+      errors: errorMessages.length ? errorMessages : [{ field: 'request', message: 'Datos invalidos' }]
     });
   }
 };
