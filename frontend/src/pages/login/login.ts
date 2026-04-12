@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Auth } from '../../service/auth';
 
 @Component({
   selector: 'app-login',
@@ -13,18 +15,30 @@ export class Login {
     password: '',
   };
 
-  submitted = false;
-  loginError = false;
-  loginSuccess = false;
+  submitted = signal(false);
+  loginError = signal(false);
+  loginSuccess = signal(false);
+
+  constructor(private auth: Auth, private router: Router) {}
 
   onSubmit() {
-    this.submitted = true;
-    this.loginError = false;
-    this.loginSuccess = false;
+    this.submitted.set(true);
+    this.loginError.set(false);
+    this.loginSuccess.set(false);
 
     if (!this.credentials.email || !this.credentials.password) return;
 
-    // TODO: conectar con auth service
-    console.log('Login:', this.credentials);
+    this.auth.login(this.credentials.email, this.credentials.password).subscribe({
+      next: () => {
+        this.loginSuccess.set(true);
+        this.auth.loadUser();
+        // Redirige al dashboard o página principal tras iniciar sesión
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.loginError.set(true);
+        console.error('Error en el login:', err);
+      }
+    });
   }
 }
