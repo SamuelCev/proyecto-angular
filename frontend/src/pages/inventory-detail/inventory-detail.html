@@ -1,0 +1,155 @@
+<!-- Loading -->
+@if (loading()) {
+  <div class="flex items-center justify-center h-64">
+    <p class="text-slate-500 text-lg">Cargando...</p>
+  </div>
+}
+
+<!-- Error -->
+@if (error()) {
+  <div class="m-6 p-4 bg-danger-50 border border-danger-100 rounded-lg text-danger-700">
+    {{ error() }}
+    <div class="mt-3">
+      <button
+        (click)="goBack()"
+        class="text-sm text-danger-600 hover:underline font-medium cursor-pointer">
+        &larr; Volver al inventario
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Contenido -->
+@if (!loading() && !error() && product()) {
+  <div class="p-6 space-y-6">
+
+    <!-- Breadcrumb / navegación -->
+    <div class="flex items-center gap-2 text-sm text-slate-500">
+      <!-- routerLink estático -->
+      <a routerLink="/inventory" class="hover:text-primary-600 hover:underline cursor-pointer">Inventario</a>
+      <span>/</span>
+      <!-- Interpolación del nombre del producto -->
+      <span class="text-slate-800 font-medium">{{ product()!.name }}</span>
+    </div>
+
+    <!-- Header del producto -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">{{ product()!.name }}</h1>
+        <p class="text-sm text-slate-500 mt-1">SKU: {{ product()!.sku }}</p>
+      </div>
+
+      <!-- Botones de acción — event binding (click) -->
+      <div class="flex gap-2">
+        <button
+          (click)="goBack()"
+          class="text-sm border border-slate-300 text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg transition-colors cursor-pointer">
+          &larr; Volver
+        </button>
+        <button
+          (click)="goToEdit()"
+          class="text-sm bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer">
+          Editar producto
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjetas KPI del producto -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+      <div class="bg-surface rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-slate-500">Precio unitario</span>
+        <!-- Interpolación + pipe -->
+        <span class="text-3xl font-bold text-primary-700">{{ product()!.price | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+
+      <div class="bg-surface rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-slate-500">Stock disponible</span>
+        @if (product()!.stock === 0) {
+          <span class="text-3xl font-bold text-danger-600">0</span>
+          <span class="text-xs text-danger-400">Sin stock</span>
+        } @else if (product()!.stock <= 5) {
+          <span class="text-3xl font-bold text-warning-600">{{ product()!.stock }}</span>
+          <button
+            (click)="filterLowStock()"
+            class="text-xs text-warning-500 hover:underline text-left cursor-pointer">
+            Ver todos con stock bajo &rarr;
+          </button>
+        } @else {
+          <span class="text-3xl font-bold text-success-600">{{ product()!.stock }}</span>
+          <span class="text-xs text-slate-400">unidades</span>
+        }
+      </div>
+
+      <div class="bg-surface rounded-xl shadow p-5 flex flex-col gap-1">
+        <span class="text-sm text-slate-500">Valor total en stock</span>
+        <span class="text-3xl font-bold text-success-600">
+          {{ product()!.price * product()!.stock | currency:'USD':'symbol':'1.2-2' }}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Detalle completo -->
+    <div class="bg-surface rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-base font-semibold text-slate-700">Información del producto</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+
+        <div>
+          <p class="text-slate-400 text-xs uppercase font-medium mb-1">Nombre</p>
+          <p class="text-slate-800 font-medium">{{ product()!.name }}</p>
+        </div>
+
+        <div>
+          <p class="text-slate-400 text-xs uppercase font-medium mb-1">SKU</p>
+          <p class="text-slate-800 font-mono">{{ product()!.sku }}</p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <p class="text-slate-400 text-xs uppercase font-medium mb-1">Descripción</p>
+          @if (product()!.description) {
+            <p class="text-slate-700">{{ product()!.description }}</p>
+          } @else {
+            <p class="text-slate-400 italic">Sin descripción</p>
+          }
+        </div>
+
+        <div>
+          <p class="text-slate-400 text-xs uppercase font-medium mb-1">Proveedor</p>
+          @if (supplier()) {
+            <!-- Property binding en routerLink dinámico -->
+            <a
+              [routerLink]="['/suppliers']"
+              class="text-primary-600 hover:underline font-medium cursor-pointer">
+              {{ supplier()!.name }}
+            </a>
+          } @else {
+            <p class="text-slate-400 italic">Desconocido</p>
+          }
+        </div>
+
+        <div>
+          <p class="text-slate-400 text-xs uppercase font-medium mb-1">ID interno</p>
+          <p class="text-slate-800 font-mono">#{{ product()!.id }}</p>
+        </div>
+
+        @if (product()!.created_at) {
+          <div>
+            <p class="text-slate-400 text-xs uppercase font-medium mb-1">Creado</p>
+            <p class="text-slate-700">{{ product()!.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        }
+
+        @if (product()!.updated_at) {
+          <div>
+            <p class="text-slate-400 text-xs uppercase font-medium mb-1">Actualizado</p>
+            <p class="text-slate-700">{{ product()!.updated_at | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        }
+
+      </div>
+    </div>
+
+  </div>
+}

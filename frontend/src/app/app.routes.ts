@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'dashboard', loadComponent: () => import('../pages/dashboard/dashboard').then(m => m.Dashboard) },
   { path: 'inventory', loadComponent: () => import('../pages/inventory/inventory').then(m => m.Inventory) },
   { path: 'inventory/new', loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
+  { path: 'inventory/:id', loadComponent: () => import('../pages/inventory-detail/inventory-detail').then(m => m.InventoryDetail) },
   { path: 'inventory/:id/edit', loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
   { path: 'suppliers', loadComponent: () => import('../pages/suppliers/suppliers').then(m => m.Suppliers) },
   { path: 'movements', loadComponent: () => import('../pages/movements/movements').then(m => m.Movements) },
