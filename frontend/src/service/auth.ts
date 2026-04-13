@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import type { AuthResponse } from '../../../types/auth';
 
 export interface AuthUser {
@@ -23,6 +25,20 @@ export class Auth {
       next: (user) => this.user.set(user),
       error: () => this.user.set(null),
     });
+  }
+
+  checkAuth(): Observable<boolean> {
+    if (this.user()) return of(true);
+    return this.http.get<AuthUser>(`${this.api}/me`, { withCredentials: true }).pipe(
+      map(user => {
+        this.user.set(user);
+        return true;
+      }),
+      catchError(() => {
+        this.user.set(null);
+        return of(false);
+      })
+    );
   }
 
   login(email: string, password: string) {

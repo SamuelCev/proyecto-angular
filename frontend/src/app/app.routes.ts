@@ -1,14 +1,17 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { publicGuard } from './guards/public.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'login', loadComponent: () => import('../pages/login/login').then(m => m.Login) },
-  { path: 'dashboard', loadComponent: () => import('../pages/dashboard/dashboard').then(m => m.Dashboard) },
-  { path: 'inventory', loadComponent: () => import('../pages/inventory/inventory').then(m => m.Inventory) },
-  { path: 'inventory/new', loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
-  { path: 'inventory/:id', loadComponent: () => import('../pages/inventory-detail/inventory-detail').then(m => m.InventoryDetail) },
-  { path: 'inventory/:id/edit', loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
-  { path: 'suppliers', loadComponent: () => import('../pages/suppliers/suppliers').then(m => m.Suppliers) },
-  { path: 'movements', loadComponent: () => import('../pages/movements/movements').then(m => m.Movements) },
+  { path: 'login', canActivate: [publicGuard], loadComponent: () => import('../pages/login/login').then(m => m.Login) },
+  { path: 'dashboard', canActivate: [authGuard], loadComponent: () => import('../pages/dashboard/dashboard').then(m => m.Dashboard) },
+  { path: 'inventory', canActivate: [authGuard], loadComponent: () => import('../pages/inventory/inventory').then(m => m.Inventory) },
+  { path: 'inventory/new', canActivate: [authGuard], loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
+  { path: 'inventory/:id', canActivate: [authGuard], loadComponent: () => import('../pages/inventory-detail/inventory-detail').then(m => m.InventoryDetail) },
+  { path: 'inventory/:id/edit', canActivate: [authGuard], loadComponent: () => import('../pages/inventory-form/inventory-form').then(m => m.InventoryForm) },
+  { path: 'suppliers', canActivate: [authGuard], loadComponent: () => import('../pages/suppliers/suppliers').then(m => m.Suppliers) },
+  { path: 'users', canActivate: [authGuard], loadComponent: () => import('../pages/users/users').then(m => m.Users) },
+  { path: 'movements', canActivate: [authGuard], loadComponent: () => import('../pages/movements/movements').then(m => m.Movements) },
   { path: '**', loadComponent: () => import('../pages/not-found/not-found').then(m => m.NotFound) },
 ];

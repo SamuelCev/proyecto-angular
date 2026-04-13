@@ -19,7 +19,7 @@
     </div>
 
     <!-- Alerta: credenciales incorrectas -->
-    @if (loginError) {
+    @if (loginError()) {
       <div
         class="mb-5 flex items-center gap-2 bg-[#fff1f2] border border-[#f43f5e] text-[#e11d48] text-sm rounded-lg px-4 py-3"
       >
@@ -42,7 +42,7 @@
     }
 
     <!-- Alerta: bienvenido -->
-    @if (loginSuccess) {
+    @if (loginSuccess()) {
       <div
         class="mb-5 flex items-center gap-2 bg-[#ecfdf5] border border-[#10b981] text-[#047857] text-sm rounded-lg px-4 py-3"
       >
@@ -78,9 +78,9 @@
           autocomplete="email"
           placeholder="correo@ejemplo.com"
           class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-          [class.border-red-400]="email.invalid && (email.dirty || submitted)"
+          [class.border-red-400]="email.invalid && (email.dirty || submitted())"
         />
-        @if (email.invalid && (email.dirty || submitted)) {
+        @if (email.invalid && (email.dirty || submitted())) {
           <p class="text-[#e11d48] text-xs mt-1">
             @if (email.errors?.['required']) {
               <span>El correo es obligatorio.</span>
@@ -108,9 +108,9 @@
           autocomplete="current-password"
           placeholder="••••••••"
           class="w-full px-4 py-2.5 border rounded-lg text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-[#6366f1] focus:border-[#6366f1] border-slate-300 placeholder-slate-400"
-          [class.border-red-400]="password.invalid && (password.dirty || submitted)"
+          [class.border-red-400]="password.invalid && (password.dirty || submitted())"
         />
-        @if (password.invalid && (password.dirty || submitted)) {
+        @if (password.invalid && (password.dirty || submitted())) {
           <p class="text-[#e11d48] text-xs mt-1">
             @if (password.errors?.['required']) {
               <span>La contraseña es obligatoria.</span>
