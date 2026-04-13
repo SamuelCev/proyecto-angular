@@ -6,6 +6,7 @@
 }
 
 <div class="p-6 space-y-4">
+
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <h1 class="text-2xl font-bold text-slate-800">Inventario</h1>
@@ -16,14 +17,35 @@
     </a>
   </div>
 
-  <!-- Búsqueda -->
-  <div>
+  <!-- Barra de filtros -->
+  <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+
+    <!-- Two-way binding con [(ngModel)] -->
     <input
       type="text"
-      [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+      [(ngModel)]="searchQuery"
       placeholder="Buscar por nombre o SKU..."
-      class="w-full sm:w-80 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
+      class="w-full sm:w-72 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
+
+    <!-- Chips de filtro de stock — property binding [class] + event binding (click) -->
+    <div class="flex gap-2 flex-wrap">
+      @for (opt of filterOptions; track opt.value) {
+        <button
+          (click)="setFilter(opt.value)"
+          [class]="stockFilter() === opt.value
+            ? 'px-3 py-1.5 rounded-full text-xs font-semibold bg-primary-600 text-white cursor-pointer transition-colors'
+            : 'px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer transition-colors'">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+
   </div>
+
+  <!-- Contador — interpolación -->
+  <p class="text-xs text-slate-400">
+    Mostrando {{ filteredProducts().length }} de {{ products().length }} productos
+  </p>
 
   <!-- Loading -->
   @if (loading()) {
@@ -51,17 +73,26 @@
           @if (filteredProducts().length === 0) {
             <tr>
               <td colspan="7" class="px-4 py-12 text-center text-slate-400 bg-white">
-                <p class="text-base font-medium text-slate-600">No hay productos registrados.</p>
-                <p class="text-sm mt-1">Crea un producto para comenzar a gestionar tu inventario.</p>
+                <p class="text-base font-medium text-slate-600">No hay productos que coincidan.</p>
+                <p class="text-sm mt-1">Prueba cambiando el filtro o la búsqueda.</p>
               </td>
             </tr>
           }
           @for (product of filteredProducts(); track product.id) {
             <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors bg-white">
               <td class="px-4 py-3 text-slate-500 font-medium">{{ product.id }}</td>
-              <td class="px-4 py-3 font-semibold text-slate-800">{{ product.name }}</td>
+
+              <!-- Property binding: routerLink al detalle -->
+              <td class="px-4 py-3 font-semibold text-slate-800">
+                <a [routerLink]="['/inventory', product.id]"
+                   class="hover:text-primary-600 hover:underline transition-colors cursor-pointer">
+                  {{ product.name }}
+                </a>
+              </td>
+
               <td class="px-4 py-3 text-slate-600">{{ product.sku }}</td>
               <td class="px-4 py-3 text-slate-600">{{ product.price | currency:'USD' }}</td>
+
               <td class="px-4 py-3">
                 @if (product.stock === 0) {
                   <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-danger-100 text-danger-700">Sin stock</span>
@@ -71,15 +102,18 @@
                   <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-success-100 text-success-700">{{ product.stock }} disp.</span>
                 }
               </td>
+
               <td class="px-4 py-3 text-slate-600">{{ product.supplierName }}</td>
+
               <td class="px-4 py-3">
                 @if (confirmDeleteId() === product.id) {
-                  <!-- Confirmación inline -->
                   <span class="text-sm text-slate-600 mr-2">¿Eliminar?</span>
                   <button (click)="confirmDelete()" class="text-xs bg-danger-600 hover:bg-danger-700 text-white px-2 py-1 rounded mr-1 transition-colors cursor-pointer">Sí</button>
                   <button (click)="cancelDelete()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded transition-colors cursor-pointer">No</button>
                 } @else {
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-3">
+                    <!-- Navegación programática al detalle — event binding -->
+                    <button (click)="viewDetail(product.id)" class="text-xs text-slate-500 hover:underline font-medium cursor-pointer">Ver</button>
                     <a [routerLink]="['/inventory', product.id, 'edit']" class="text-xs text-primary-600 hover:underline font-medium cursor-pointer">Editar</a>
                     <button (click)="requestDelete(product.id)" class="text-xs text-danger-500 hover:underline font-medium cursor-pointer">Eliminar</button>
                   </div>
@@ -91,4 +125,5 @@
       </table>
     </div>
   }
+
 </div>
