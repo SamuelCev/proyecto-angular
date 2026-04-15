@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product, Supplier } from '@inven-tech/types';
 import { InventoryService } from '../../service/inventory';
 import { SuppliersService } from '../../service/suppliers';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-inventory-form',
@@ -18,6 +19,7 @@ export class InventoryForm implements OnInit {
   private router = inject(Router);
   private inventoryService = inject(InventoryService);
   private suppliersService = inject(SuppliersService);
+  private toastr = inject(ToastrService);
 
   loading = signal(true);
   saving = signal(false);
@@ -48,9 +50,7 @@ export class InventoryForm implements OnInit {
   ngOnInit(): void {
     this.suppliersService.getAll().subscribe({
       next: (data) => this.suppliers.set(data),
-      error: () => {
-        this.suppliers.set([]);
-      },
+      error: () => this.suppliers.set([]),
     });
 
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -70,21 +70,22 @@ export class InventoryForm implements OnInit {
   saveCreate(): void {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
+      this.toastr.warning('Por favor completa todos los campos requeridos.', 'Formulario incompleto');
       return;
     }
 
     const payload = this.toPayload(this.createForm.getRawValue());
     this.saving.set(true);
     this.error.set(null);
-    this.success.set(null);
 
     this.inventoryService.create(payload).subscribe({
       next: () => {
         this.saving.set(false);
+        this.toastr.success('Producto creado exitosamente.', '¡Éxito!');
         this.router.navigate(['/inventory']);
       },
       error: () => {
-        this.error.set('No se pudo crear el producto.');
+        this.toastr.error('No se pudo crear el producto. Intenta de nuevo.', 'Error');
         this.saving.set(false);
       },
     });
@@ -93,24 +94,22 @@ export class InventoryForm implements OnInit {
   saveEdit(): void {
     if (this.editForm.invalid || this.editId() === null) {
       this.editForm.markAllAsTouched();
+      this.toastr.warning('Por favor completa todos los campos requeridos.', 'Formulario incompleto');
       return;
     }
 
     const payload = this.toPayload(this.editForm.getRawValue());
     this.saving.set(true);
     this.error.set(null);
-    this.success.set(null);
 
     this.inventoryService.update(this.editId()!, payload).subscribe({
       next: () => {
         this.saving.set(false);
-        this.success.set('Cambios guardados correctamente. Redirigiendo...');
-        setTimeout(() => {
-          this.router.navigate(['/inventory']);
-        }, 1200);
+        this.toastr.success('Producto actualizado correctamente.', '¡Guardado!');
+        setTimeout(() => this.router.navigate(['/inventory']), 1200);
       },
       error: () => {
-        this.error.set('No se pudo actualizar el producto.');
+        this.toastr.error('No se pudo actualizar el producto.', 'Error');
         this.saving.set(false);
       },
     });
@@ -135,15 +134,13 @@ export class InventoryForm implements OnInit {
 
   private loadProduct(id: number): void {
     this.loading.set(true);
-    this.error.set(null);
-
     this.inventoryService.getById(id).subscribe({
       next: (product) => {
         this.patchEditForm(product);
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar el producto para editar.');
+        this.toastr.error('No se pudo cargar el producto para editar.', 'Error');
         this.loading.set(false);
       },
     });
