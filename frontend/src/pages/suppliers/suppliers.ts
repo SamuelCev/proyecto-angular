@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Supplier } from '@inven-tech/types';
 import { SuppliersService } from '../../service/suppliers';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-suppliers',
@@ -13,6 +14,7 @@ import { SuppliersService } from '../../service/suppliers';
 export class Suppliers implements OnInit {
   private suppliersService = inject(SuppliersService);
   private fb = inject(FormBuilder);
+  private toastr = inject(ToastrService);
 
   suppliers = signal<Supplier[]>([]);
   loading = signal(true);
@@ -20,7 +22,6 @@ export class Suppliers implements OnInit {
   showModal = signal(false);
   editingId = signal<number | null>(null);
   confirmDeleteId = signal<number | null>(null);
-
   searchQuery = signal('');
 
   filteredSuppliers = computed(() => {
@@ -34,19 +35,11 @@ export class Suppliers implements OnInit {
     );
   });
 
-  // FormBuilder + Validators — formulario alta/edición con límites estrictos
   form = this.fb.group({
-    name: ['', [
-      Validators.required,
-      Validators.minLength(2),
-      Validators.maxLength(100),
-      Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,&'-]+$/)
-    ]],
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100),
+      Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,&'-]+$/)]],
     email: ['', [Validators.email, Validators.maxLength(150)]],
-    phone: ['', [
-      Validators.required,
-      Validators.pattern(/^[0-9\+\-\s\(\)]{10,20}$/)
-    ]],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9\+\-\s\(\)]{10,20}$/)]],
     address: ['', [Validators.required, Validators.maxLength(250)]],
   });
 
@@ -65,13 +58,13 @@ export class Suppliers implements OnInit {
 
   loadSuppliers(): void {
     this.loading.set(true);
-    this.error.set(null);
     this.suppliersService.getAll().subscribe({
       next: (data) => {
         this.suppliers.set(data);
         this.loading.set(false);
       },
       error: () => {
+        this.toastr.error('No se pudieron cargar los proveedores.', 'Error');
         this.suppliers.set([]);
         this.loading.set(false);
       },
@@ -104,6 +97,7 @@ export class Suppliers implements OnInit {
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toastr.warning('Por favor completa todos los campos correctamente.', 'Formulario incompleto');
       return;
     }
 
@@ -119,9 +113,10 @@ export class Suppliers implements OnInit {
         next: (created) => {
           this.suppliers.update((list) => [...list, created]);
           this.closeModal();
+          this.toastr.success('Proveedor creado exitosamente.', '¡Éxito!');
         },
         error: () => {
-          this.error.set('Error al crear el proveedor.');
+          this.toastr.error('Error al crear el proveedor.', 'Error');
         },
       });
     } else {
@@ -132,9 +127,10 @@ export class Suppliers implements OnInit {
             list.map((s) => (s.id === id ? { ...s, ...payload } : s))
           );
           this.closeModal();
+          this.toastr.success('Proveedor actualizado correctamente.', '¡Guardado!');
         },
         error: () => {
-          this.error.set('Error al actualizar el proveedor.');
+          this.toastr.error('Error al actualizar el proveedor.', 'Error');
         },
       });
     }
@@ -155,9 +151,10 @@ export class Suppliers implements OnInit {
       next: () => {
         this.suppliers.update((list) => list.filter((s) => s.id !== id));
         this.confirmDeleteId.set(null);
+        this.toastr.success('Proveedor eliminado correctamente.', 'Eliminado');
       },
       error: () => {
-        this.error.set('Error al eliminar el proveedor.');
+        this.toastr.error('Error al eliminar el proveedor.', 'Error');
         this.confirmDeleteId.set(null);
       },
     });
