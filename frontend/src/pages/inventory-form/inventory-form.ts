@@ -1,11 +1,30 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product, Supplier } from '@inven-tech/types';
 import { InventoryService } from '../../service/inventory';
 import { SuppliersService } from '../../service/suppliers';
 import { ToastrService } from 'ngx-toastr';
+
+const integerNumberValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const value = control.value;
+
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  return Number.isInteger(Number(value)) ? null : { integer: true };
+};
 
 @Component({
   selector: 'app-inventory-form',
@@ -32,19 +51,33 @@ export class InventoryForm implements OnInit {
   createForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
     sku: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    description: [''],
-    price: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
-    supplier_id: [null as number | null, [Validators.required, Validators.min(1)]],
+    description: [
+      '',
+      [
+        Validators.minLength(10),
+        Validators.maxLength(300),
+        Validators.pattern(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,;:()\-]*$/),
+      ],
+    ],
+    price: [0, [Validators.required, Validators.min(0.01), Validators.max(1000000)]],
+    stock: [0, [Validators.required, Validators.min(0), integerNumberValidator]],
+    supplier_id: [null as number | null, [Validators.required, Validators.min(1), Validators.max(999999)]],
   });
 
   editForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
     sku: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    description: [''],
-    price: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
-    supplier_id: [null as number | null, [Validators.required, Validators.min(1)]],
+    description: [
+      '',
+      [
+        Validators.minLength(10),
+        Validators.maxLength(300),
+        Validators.pattern(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,;:()\-]*$/),
+      ],
+    ],
+    price: [0, [Validators.required, Validators.min(0.01), Validators.max(1000000)]],
+    stock: [0, [Validators.required, Validators.min(0), integerNumberValidator]],
+    supplier_id: [null as number | null, [Validators.required, Validators.min(1), Validators.max(999999)]],
   });
 
   ngOnInit(): void {
