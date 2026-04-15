@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import type { AuthResponse } from '../../../types/auth';
+import { environment } from '../environments/environment';
 
 export interface AuthUser {
   id: number;
@@ -15,7 +16,7 @@ export interface AuthUser {
   providedIn: 'root',
 })
 export class Auth {
-  private readonly api = 'http://localhost:3000/api/auth';
+  private readonly api = `${environment.apiUrl}/auth`;
   readonly user = signal<AuthUser | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {}

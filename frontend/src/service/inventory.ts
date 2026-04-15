@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '@inven-tech/types';
+import { environment } from '../environments/environment';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = environment.apiUrl;
 type ProductPayload = Omit<Product, 'id' | 'created_at' | 'updated_at'>;
 
 @Injectable({
