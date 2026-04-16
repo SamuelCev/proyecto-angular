@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS inventech;
-USE inventech;
+-- CREATE DATABASE IF NOT EXISTS inventech;
+-- USE inventech;
 
 -- Disable strict foreign key checks during creation loops to avoid errors if dropping
 SET FOREIGN_KEY_CHECKS = 0;
@@ -57,6 +57,10 @@ CREATE TABLE `movements` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
--- Insert an initial super admin user (password: Admin1234)
+-- Insert initial admin users (password: admin123)
+-- Usamos CONCAT(CHAR(36)...) para evitar que editores SQL interpreten $2 y $10 como variables
 INSERT INTO `users` (`name`, `email`, `password_hash`, `role`) 
-VALUES ('Super Admin', 'admin@inventech.com', '$2b$10$ytJyfcOqvizVhXEExIuxiuZvIBOtqye.XoXPQmgErscvkowojvHye', 'ADMIN');
+VALUES 
+    ('Super Admin', 'admin@inventech.com', CONCAT(CHAR(36), '2b', CHAR(36), '10', CHAR(36), '/KEzWjhsWPe6Cs7M9iJWq.HFgUcnZvMsp5yCqVQa672BFhBiHgLVC'), 'ADMIN'),
+    ('Admin Secundario', 'admin2@inventech.com', CONCAT(CHAR(36), '2b', CHAR(36), '10', CHAR(36), '/KEzWjhsWPe6Cs7M9iJWq.HFgUcnZvMsp5yCqVQa672BFhBiHgLVC'), 'ADMIN'),
+    ('admin', 'admin', CONCAT(CHAR(36), '2b', CHAR(36), '10', CHAR(36), '/KEzWjhsWPe6Cs7M9iJWq.HFgUcnZvMsp5yCqVQa672BFhBiHgLVC'), 'ADMIN');
