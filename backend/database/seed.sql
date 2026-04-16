@@ -1,4 +1,4 @@
-USE inventech;
+-- USE inventech;
 
 -- ─────────────────────────────────────────
 -- Suppliers (10 records)

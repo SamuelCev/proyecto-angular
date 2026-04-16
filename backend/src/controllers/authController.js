@@ -25,13 +25,15 @@ exports.login = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    // 4. Send token through HttpOnly Cookie
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 24 * 60 * 60 * 1000 // 1 Day
-    });
+    };
+
+    // 4. Send token through HttpOnly Cookie
+    res.cookie('token', token, cookieOptions);
 
     res.json({ message: 'Login exitoso', user: { id: user.id, name: user.name, role: user.role } });
   } catch (error) {
@@ -40,7 +42,11 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+  });
   res.json({ message: 'Logout exitoso' });
 };
 
