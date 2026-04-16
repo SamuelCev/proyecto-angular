@@ -94,8 +94,6 @@
               <td class="px-4 py-3 text-slate-600">{{ product.price | currency:'USD' }}</td>
 
               <td class="px-4 py-3">
-                <!-- @Input: stock es pasado al componente reutilizable -->
-                <!-- @Output: badgeClick llega aquí y el padre aplica el filtro -->
                 <app-stock-badge [stock]="product.stock" (badgeClick)="setFilter('low')" />
               </td>
 

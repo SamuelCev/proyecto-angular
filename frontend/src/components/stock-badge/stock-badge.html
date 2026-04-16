@@ -1,7 +1,6 @@
 @if (stock === 0) {
   <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-danger-100 text-danger-700">Sin stock</span>
 } @else if (stock <= 5) {
-  <!-- @Output: al hacer click avisa al padre para que filtre por stock bajo -->
   <button
     (click)="badgeClick.emit()"
     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-warning-100 text-warning-700 hover:bg-warning-200 cursor-pointer transition-colors"
