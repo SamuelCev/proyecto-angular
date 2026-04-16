@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import { Product } from '@inven-tech/types';
 import { InventoryService } from '../../service/inventory';
 import { SuppliersService } from '../../service/suppliers';
+import { ToastrService } from 'ngx-toastr';
 
 interface EnrichedProduct extends Product {
   supplierName: string;
@@ -24,12 +25,12 @@ export class Inventory implements OnInit {
   private suppliersService = inject(SuppliersService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
 
   products = signal<EnrichedProduct[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
 
-  // Getter/setter para two-way binding con [(ngModel)]
   private _searchQuery = signal('');
   get searchQuery(): string { return this._searchQuery(); }
   set searchQuery(value: string) { this._searchQuery.set(value); }
@@ -44,40 +45,33 @@ export class Inventory implements OnInit {
     { value: 'out',       label: 'Sin stock' },
   ];
 
-  // computed: aplica filtro de texto + filtro de stock
   filteredProducts = computed(() => {
     const q = this._searchQuery().toLowerCase().trim();
     const filter = this.stockFilter();
-
     return this.products().filter(p => {
       const stockOk =
         filter === 'all' ||
         (filter === 'out'       && p.stock === 0) ||
         (filter === 'low'       && p.stock > 0 && p.stock <= 5) ||
         (filter === 'available' && p.stock > 5);
-
       const textOk = !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-
       return stockOk && textOk;
     });
   });
 
   ngOnInit(): void {
-    // queryParamMap: sincroniza el filtro de stock con la URL
     this.route.queryParamMap.subscribe(params => {
       const stock = params.get('stock') as StockFilter | null;
       if (stock && ['all', 'available', 'low', 'out'].includes(stock)) {
         this.stockFilter.set(stock);
       }
     });
-
     this.loadData();
   }
 
   loadData(): void {
     this.loading.set(true);
     this.error.set(null);
-
     forkJoin({
       products: this.inventoryService.getAll(),
       suppliers: this.suppliersService.getAll(),
@@ -95,13 +89,13 @@ export class Inventory implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.toastr.error('No se pudieron cargar los productos.', 'Error');
         this.products.set([]);
         this.loading.set(false);
       },
     });
   }
 
-  // Navegación programática con queryParams al cambiar filtro
   setFilter(filter: StockFilter): void {
     this.stockFilter.set(filter);
     this.router.navigate([], {
@@ -111,7 +105,6 @@ export class Inventory implements OnInit {
     });
   }
 
-  // Navegación programática al detalle del producto
   viewDetail(id: number): void {
     this.router.navigate(['/inventory', id]);
   }
@@ -127,14 +120,14 @@ export class Inventory implements OnInit {
   confirmDelete(): void {
     const id = this.confirmDeleteId();
     if (id === null) return;
-
     this.inventoryService.delete(id).subscribe({
       next: () => {
         this.products.update(list => list.filter(p => p.id !== id));
         this.confirmDeleteId.set(null);
+        this.toastr.success('Producto eliminado correctamente.', 'Eliminado');
       },
       error: () => {
-        this.error.set('No se pudo eliminar el producto.');
+        this.toastr.error('No se pudo eliminar el producto.', 'Error');
         this.confirmDeleteId.set(null);
       },
     });
