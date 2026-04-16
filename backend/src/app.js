@@ -16,7 +16,26 @@ app.set('etag', false);
 
 // Middlewares
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  origin: function (origin, callback) {
+    // Definimos los orígenes permitidos por defecto
+    const allowedOrigins = [
+      'http://localhost:4200',
+      'https://proyecto-angular-frontend-one.vercel.app'
+    ];
+
+    // Si hay variable de entorno, la partimos por comas y la agregamos
+    if (process.env.CORS_ORIGIN) {
+      const envOrigins = process.env.CORS_ORIGIN.split(',').map(o => o.trim());
+      allowedOrigins.push(...envOrigins);
+    }
+
+    // Permitimos peticiones sin origin (como postman/curl) o si el origen está en la lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
