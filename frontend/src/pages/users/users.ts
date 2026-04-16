@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../service/users';
 import type { User } from '@inven-tech/types';
+import Swal from 'sweetalert2';
 
 type UserRole = 'ADMIN' | 'EMPLOYEE';
 
@@ -113,12 +114,22 @@ export class Users implements OnInit {
     });
   }
 
-  deleteUser(userId: number) {
+  async deleteUser(userId: number) {
     this.error.set('');
     this.success.set('');
 
-    const confirmed = confirm('¿Seguro que deseas dar de baja este usuario?');
-    if (!confirmed) {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Seguro que deseas dar de baja este usuario?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#4f46e5', // Coincide con estilo general
+      cancelButtonColor: '#ef4444',
+      confirmButtonText: 'Sí, dar de baja',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
