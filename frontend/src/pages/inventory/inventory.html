@@ -94,13 +94,9 @@
               <td class="px-4 py-3 text-slate-600">{{ product.price | currency:'USD' }}</td>
 
               <td class="px-4 py-3">
-                @if (product.stock === 0) {
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-danger-100 text-danger-700">Sin stock</span>
-                } @else if (product.stock <= 5) {
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-warning-100 text-warning-700">{{ product.stock }} (Bajo)</span>
-                } @else {
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-success-100 text-success-700">{{ product.stock }} disp.</span>
-                }
+                <!-- @Input: stock es pasado al componente reutilizable -->
+                <!-- @Output: badgeClick llega aquí y el padre aplica el filtro -->
+                <app-stock-badge [stock]="product.stock" (badgeClick)="setFilter('low')" />
               </td>
 
               <td class="px-4 py-3 text-slate-600">{{ product.supplierName }}</td>

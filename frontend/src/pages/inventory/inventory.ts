@@ -7,6 +7,7 @@ import { Product } from '@inven-tech/types';
 import { InventoryService } from '../../service/inventory';
 import { SuppliersService } from '../../service/suppliers';
 import { ToastrService } from 'ngx-toastr';
+import { StockBadge } from '../../components/stock-badge/stock-badge';
 
 interface EnrichedProduct extends Product {
   supplierName: string;
@@ -16,7 +17,7 @@ type StockFilter = 'all' | 'available' | 'low' | 'out';
 
 @Component({
   selector: 'app-inventory',
-  imports: [FormsModule, RouterLink, CurrencyPipe],
+  imports: [FormsModule, RouterLink, CurrencyPipe, StockBadge],
   templateUrl: './inventory.html',
   styleUrl: './inventory.css',
 })
